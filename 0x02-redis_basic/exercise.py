@@ -32,15 +32,17 @@ def call_history(method: Callable) -> Callable:
     return decorator
 
 
-def replay(self, method: Callable) -> None:
+def replay(method: Callable) -> None:
     meth_name = method.__qualname__
     input_key = f"{meth_name}:inputs"
     output_key = f"{meth_name}:outputs"
+    
+    r = redis.Redis()
 
-    inputs = self._redis.lrange(input_key, 0, -1)
-    outputs = self._redis.lrange(output_key, 0, -1)
-
-    count = self._redis.get(meth_name)
+    inputs = r.lrange(input_key, 0, -1)
+    outputs = r.lrange(output_key, 0, -1)
+    
+    count = r.get(meth_name)
     if count is None:
         count = 0
     else:
@@ -48,10 +50,8 @@ def replay(self, method: Callable) -> None:
 
     print(f"{meth_name} was called {count} times:")
 
-    for i, (input_data, output_data) in enumerate(zip(inputs, outputs)):
-        input_str = ', '.join(input_data.decode('utf-8'))
-        print(f"Call {i + 1}:")
-        print(f"{meth_name}({input_str}) -> {output_data.decode('utf-8')}")
+    for (input_data, output_data) in zip(inputs, outputs):
+        print(f"{meth_name}(*{input_data.decode('utf-8')}) -> {output_data.decode('utf-8')}")
 
 
 class Cache:
