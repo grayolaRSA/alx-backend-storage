@@ -18,6 +18,18 @@ def count_calls(method: Callable) -> Callable:
     
     return wrapper
 
+def call_history(method: Callable) -> Callable:
+    @wraps(method)
+    def decorator(self, *args, **kwargs):
+        input = f"{method.__qualname__}:inputs"
+        output = f"{method.__qualname__}:outputs"
+        self._redis.rpush(input, str(args))
+        result = method(self, *args, **kwargs)
+        self._redis.rpush(output, result)
+        return result
+        
+    return decorator
+
 class Cache:
     """class for Redis database"""
 
@@ -27,6 +39,7 @@ class Cache:
         self.call_count = 0
     
     @count_calls
+    @call_history
     def store(self, data: Union[bytes, str, int, float]) -> str:
         """method to store data to redis"""
 
@@ -47,3 +60,5 @@ class Cache:
     
     def get_int(self, key: str) -> int:
         return self.get(key, fn=int)
+    
+    
