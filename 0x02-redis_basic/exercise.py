@@ -11,10 +11,10 @@ from functools import wraps
 def count_calls(method: Callable) -> Callable:
     @wraps(method)
     def wrapper(self, data: Union[bytes, str, int, float]) -> str:
-        self.call_count += 1
         data_key = method.__qualname__
         self._redis.incr(data_key)
-        return method(self, data)
+        result = method(self, data)
+        return result
     
     return wrapper
 
