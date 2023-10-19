@@ -13,17 +13,34 @@ def expire(method: Callable) -> None:
     @wraps(method)
     def wrapper(url: str) -> str:
         cache = Cache()
-        results = method(url)
-        cache.expire(results, 10)
-        return results
+        cached_content = cache.get(url)
+        if cached_content:
+            print(f"served cached content")
+            return cached_content.decode('utf-8')
+        else:
+            results = method(url)
+            print(f"results expired")
+            return results
 
     return wrapper
 
 
 @expire
-@call_history
-@count_calls
 def get_page(url: str) -> str:
     """method to get web page"""
-    content = requests(url)
-    return content
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        page_content = response.text
+
+        return page_content
+
+    else:
+        raise Exception(f"Failed to fetch page: {url}")
+
+
+if __name__ == '__main__':
+    url = "http://slowwly.robertomurray.co.uk"
+    content = get_page(url)
+    print(content)
