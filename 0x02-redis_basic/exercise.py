@@ -9,6 +9,7 @@ from functools import wraps
 
 
 def count_calls(method: Callable) -> Callable:
+    """decorator function for store method to count calls"""
     @wraps(method)
     def wrapper(self, data: Union[bytes, str, int, float]) -> str:
         data_key = method.__qualname__
@@ -20,6 +21,7 @@ def count_calls(method: Callable) -> Callable:
 
 
 def call_history(method: Callable) -> Callable:
+    """decorator method for store method to create call history"""
     @wraps(method)
     def decorator(self, *args, **kwargs):
         input = f"{method.__qualname__}:inputs"
@@ -33,6 +35,7 @@ def call_history(method: Callable) -> Callable:
 
 
 def replay(method: Callable) -> None:
+    """method to replay calls made to cache methods"""
     meth_name = method.__qualname__
     input_key = f"{meth_name}:inputs"
     output_key = f"{meth_name}:outputs"
