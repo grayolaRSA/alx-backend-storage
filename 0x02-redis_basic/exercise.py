@@ -62,9 +62,9 @@ class Cache:
     """class for Redis database"""
 
     def __init__(self):
+        """init method for cache"""
         self._redis = redis.Redis()
         self._redis.flushdb()
-        self.call_count = 0
 
     @count_calls
     @call_history
@@ -78,6 +78,7 @@ class Cache:
     def get(self,
             key: str, fn: Optional[Callable[..., None]]
             = None) -> Union[bytes, str, int]:
+        """class method to get values of db data"""
 
         data = self._redis.get(key)
         if data is not None and fn is not None:
@@ -85,7 +86,9 @@ class Cache:
         return data
 
     def get_str(self, key: str) -> str:
+        """sub method of get method for strings"""
         return self.get(key, fn=lambda d: d.decode("utf-8"))
 
     def get_int(self, key: str) -> int:
+        """sub method of get method for integers"""
         return self.get(key, fn=int)
