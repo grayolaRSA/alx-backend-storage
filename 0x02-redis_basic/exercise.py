@@ -36,12 +36,12 @@ def replay(method: Callable) -> None:
     meth_name = method.__qualname__
     input_key = f"{meth_name}:inputs"
     output_key = f"{meth_name}:outputs"
-    
+
     r = redis.Redis()
 
     inputs = r.lrange(input_key, 0, -1)
     outputs = r.lrange(output_key, 0, -1)
-    
+
     count = r.get(meth_name)
     if count is None:
         count = 0
@@ -51,7 +51,8 @@ def replay(method: Callable) -> None:
     print(f"{meth_name} was called {count} times:")
 
     for (input_data, output_data) in zip(inputs, outputs):
-        print(f"{meth_name}(*{input_data.decode('utf-8')}) -> {output_data.decode('utf-8')}")
+        print(f"{meth_name}(*{input_data.decode('utf-8')}) -> "
+              f"{output_data.decode('utf-8')}")
 
 
 class Cache:
