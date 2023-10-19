@@ -8,7 +8,7 @@ from typing import Union, Optional, Callable
 from functools import wraps
 
 
-def count_calls(method: Callable) -> Callable[..., None]:
+def count_calls(method: Callable) -> Callable:
     @wraps(method)
     def wrapper(self, data: Union[bytes, str, int, float]) -> str:
         self.call_count += 1
