@@ -14,6 +14,8 @@ def expire(method: Callable) -> None:
     @wraps(method)
     def wrapper(url: str) -> str:
         r = redis.Redis()
+        cache = set()
+
         cached_content = r.get(url)
         if cached_content:
             print(f"served cached content")
@@ -22,9 +24,11 @@ def expire(method: Callable) -> None:
             results = method(url)
             now = datetime.datetime.utcnow()
             addrts = f"{url}:{now.minute}"
+            cache.add(addrts)
             n = r.incr(addrts, 1)
-            print(results)
+            print(n)
         _ = r.expire(addrts, 10)
+        return results
 
     return wrapper
 
