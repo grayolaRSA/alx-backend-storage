@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """module for requesting web pages"""
 
+import datetime
 import redis
 import requests
 from typing import Callable
@@ -12,18 +13,20 @@ def expire(method: Callable) -> None:
     """decorator function for clearing cache"""
     @wraps(method)
     def wrapper(url: str) -> str:
-        cache = Cache()
-        cached_content = cache.get(url)
+        r = redis.Redis()
+        cached_content = r.get(url)
         if cached_content:
             print(f"served cached content")
             return cached_content.decode('utf-8')
         else:
             results = method(url)
-            print(f"results expired")
-            return results
+            now = datetime.datetime.utcnow()
+            addrts = f"{url}:{now.minute}"
+            n = r.incr(addrts, 1)
+            print(results)
+        _ = r.expire(addrts, 10)
 
     return wrapper
-
 
 @expire
 def get_page(url: str) -> str:
@@ -38,7 +41,6 @@ def get_page(url: str) -> str:
 
     else:
         raise Exception(f"Failed to fetch page: {url}")
-
 
 if __name__ == '__main__':
     url = "http://slowwly.robertomurray.co.uk"
