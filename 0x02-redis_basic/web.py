@@ -32,6 +32,7 @@ def expire(method: Callable) -> None:
 
     return wrapper
 
+
 @expire
 def get_page(url: str) -> str:
     """method to get web page"""
@@ -45,6 +46,7 @@ def get_page(url: str) -> str:
 
     else:
         raise Exception(f"Failed to fetch page: {url}")
+
 
 if __name__ == '__main__':
     url = "http://slowwly.robertomurray.co.uk"
